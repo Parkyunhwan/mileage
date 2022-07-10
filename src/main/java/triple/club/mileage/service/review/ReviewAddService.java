@@ -3,6 +3,7 @@ package triple.club.mileage.service.review;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import triple.club.mileage.domain.Place;
 import triple.club.mileage.domain.PointHistory;
 import triple.club.mileage.domain.Review;
@@ -21,10 +22,10 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class ReviewAddService implements ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final PointHistoryRepository pointHistoryRepository;
     private final PlaceRepository placeRepository;
     private final PointHistoryService pointHistoryService;
     private final UserRepository userRepository;
@@ -46,21 +47,33 @@ public class ReviewAddService implements ReviewService {
         Place place = placeRepository.findById(placeId).orElseThrow(() -> new IllegalStateException("no exist"));
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalStateException("no exist"));
 
+        if (reviewRepository.findByPlace(place).isEmpty())
+            log.info("장소에 등록된 리뷰가 없습니다.");
+        else {
+            log.info("하나의 유저가 한 장소에 2개이상의 리뷰를 작성할 수 없습니다.");
+            throw new IllegalStateException("하나의 유저가 한 장소에 2개이상의 리뷰를 작성할 수 없습니다.");
+        }
+
         Review review = Review.createReview(reviewId, content, attachedPhotoIds.size()
                 , user, place);
         reviewRepository.save(review);
 
         log.info("포인트 적립");
+        Long pointScore = 0L;
         if (review.checkContent()) {
-            pointHistoryService.savePointHistory(PointEventType.REVIEW_CONTENT);
+            pointHistoryService.savePointHistory(PointEventType.REVIEW_CONTENT, user);
+            pointScore += PointEventType.REVIEW_CONTENT.getPoint();
         }
         if (review.checkPhotos()) {
-            pointHistoryService.savePointHistory(PointEventType.REVIEW_PHOTO);
+            pointHistoryService.savePointHistory(PointEventType.REVIEW_PHOTO, user);
+            pointScore += PointEventType.REVIEW_PHOTO.getPoint();
         }
         if (place.isZeroReview()) {
-            pointHistoryService.savePointHistory(PointEventType.PLACE_FIRST_REVIEW);
+            pointHistoryService.savePointHistory(PointEventType.PLACE_FIRST_REVIEW, user);
+            pointScore += PointEventType.PLACE_FIRST_REVIEW.getPoint();
             place.changeReviewState(false);
         }
+        user.addPointScore(pointScore); // 변경감지로 업데이트
     }
 
     @Override

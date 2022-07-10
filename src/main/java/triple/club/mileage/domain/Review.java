@@ -5,16 +5,17 @@ import triple.club.mileage.domain.enums.ActionType;
 import triple.club.mileage.domain.enums.EventType;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "review_tb")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 @Builder
 public class Review extends BaseEntity {
     @Id
     @Column(name = "review_id")
-    @Getter
     private String id;
 
     private String content;
@@ -44,5 +45,10 @@ public class Review extends BaseEntity {
 
     public boolean checkPhotos() {
         return this.photo_size > 0;
+    }
+
+    public void changeReview(String content, int photo_size) {
+        this.content = content;
+        this.photo_size = photo_size;
     }
 }

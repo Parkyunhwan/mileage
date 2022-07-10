@@ -20,4 +20,9 @@ public class User extends BaseEntity {
     private String name;
 
     private Long pointScore;
+
+    public Long addPointScore(long pointScore) {
+        this.pointScore += pointScore;
+        return this.pointScore;
+    }
 }

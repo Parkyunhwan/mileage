@@ -31,5 +31,7 @@ public class PointHistory extends BaseEntity {
 
     private Long point;
 
-
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }
