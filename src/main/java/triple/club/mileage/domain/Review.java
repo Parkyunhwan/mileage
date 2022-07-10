@@ -22,6 +22,8 @@ public class Review extends BaseEntity {
 
     private int photo_size;
 
+    private boolean firstReview;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -50,5 +52,9 @@ public class Review extends BaseEntity {
     public void changeReview(String content, int photo_size) {
         this.content = content;
         this.photo_size = photo_size;
+    }
+
+    public void changeFirstReviewStatus(boolean bool) {
+        this.firstReview = bool;
     }
 }
