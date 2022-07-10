@@ -18,6 +18,7 @@ import triple.club.mileage.repository.UserRepository;
 import triple.club.mileage.service.point.PointHistoryService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -47,7 +48,10 @@ public class ReviewAddService implements ReviewService {
         Place place = placeRepository.findById(placeId).orElseThrow(() -> new IllegalStateException("no exist"));
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalStateException("no exist"));
 
-        if (reviewRepository.findByPlace(place).isEmpty())
+        Optional<Review> optionalReview = reviewRepository.findById(reviewId);
+        if (optionalReview.isPresent())
+            throw new IllegalStateException("이미 등록된 reviewId 입니다.");
+        if (reviewRepository.findByPlaceAndUser(place, user).isEmpty())
             log.info("장소에 등록된 리뷰가 없습니다.");
         else {
             log.info("하나의 유저가 한 장소에 2개이상의 리뷰를 작성할 수 없습니다.");
@@ -56,7 +60,7 @@ public class ReviewAddService implements ReviewService {
 
         Review review = Review.createReview(reviewId, content, attachedPhotoIds.size()
                 , user, place);
-        reviewRepository.save(review);
+
 
         log.info("포인트 적립");
         Long pointScore = 0L;
@@ -71,9 +75,11 @@ public class ReviewAddService implements ReviewService {
         if (place.isZeroReview()) {
             pointHistoryService.savePointHistory(PointEventType.PLACE_FIRST_REVIEW, user);
             pointScore += PointEventType.PLACE_FIRST_REVIEW.getPoint();
+            review.changeFirstReviewStatus(true);
             place.changeReviewState(false);
         }
         user.addPointScore(pointScore); // 변경감지로 업데이트
+        reviewRepository.save(review);
     }
 
     @Override
