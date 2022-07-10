@@ -23,7 +23,7 @@ public class Place extends BaseEntity {
 
     private boolean zeroReview;
 
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "place")
     @Builder.Default
     private List<Review> reviews = new ArrayList<>();
 
