@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "event_tb")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Event {
+public class Event extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "event_id")
