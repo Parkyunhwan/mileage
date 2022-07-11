@@ -43,7 +43,7 @@ public class InitDb {
         }
 
         private Place createPlace(String placeId, String name) {
-            return Place.builder().id(placeId).name(name).zeroReview(true).build();
+            return Place.builder().id(placeId).name(name).build();
         }
 
         private User createUser(String userId, String name) {

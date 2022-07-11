@@ -21,13 +21,29 @@ public class Place extends BaseEntity {
 
     private String name;
 
-    private boolean zeroReview;
+    private String firstReviewId;
 
     @OneToMany(mappedBy = "place")
     @Builder.Default
     private List<Review> reviews = new ArrayList<>();
 
-    public void changeReviewState(boolean bool) {
-        zeroReview = bool;
+    public void deleteFirstReviewId() {
+        firstReviewId = null;
+    }
+
+    public boolean hasFirstReviewId() {
+        return firstReviewId != null;
+    }
+
+    public void setFirstReviewId(String firstReviewId) {
+        this.firstReviewId = firstReviewId;
+    }
+
+    public boolean hasOneReview(Place place) {
+        return place.getReviews().size() == 1;
+    }
+
+    public boolean compareFirstReviewId(String reviewId) {
+        return hasFirstReviewId() && getFirstReviewId().equals(reviewId);
     }
 }

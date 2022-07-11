@@ -7,6 +7,7 @@ import triple.club.mileage.domain.enums.PointEventType;
 import triple.club.mileage.domain.enums.PointType;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -22,4 +23,6 @@ public class PointHistoryDTO {
     private Long point;
 
     private String userId;
+
+    private LocalDateTime regDate;
 }

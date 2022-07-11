@@ -30,10 +30,9 @@ public class PointHistoryService {
         if (review.checkPhotos()) {
             pointScore += savePointHistory(PointEventType.REVIEW_PHOTO, user);
         }
-        if (place.isZeroReview()) {
+        if (!place.hasFirstReviewId()) {
             pointScore += savePointHistory(PointEventType.PLACE_FIRST_REVIEW, user);
-            review.changeFirstReviewStatus(true);
-            place.changeReviewState(false);
+            place.setFirstReviewId(review.getId());
         }
         return pointScore;
     }
@@ -46,12 +45,11 @@ public class PointHistoryService {
         if (review.checkPhotos()) {
             pointScore += savePointHistory(PointEventType.REVIEW_PHOTO_ZERO, user);
         }
-        if (!place.isZeroReview() && review.isFirstReview()) {
+        if (place.compareFirstReviewId(review.getId())) {
             pointScore += savePointHistory(PointEventType.PLACE_FIRST_REVIEW_DELETE, user);
         }
-
-        if (place.getReviews().size() - 1 == 0)
-            place.changeReviewState(true);
+        if (place.hasOneReview(place))
+            place.deleteFirstReviewId();
 
         return pointScore;
     }

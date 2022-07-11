@@ -36,7 +36,7 @@ public class PointHistory extends BaseEntity {
 
     public PointHistoryDTO convertToPointHistoryDTO() {
         return PointHistoryDTO.builder().pointHistoryId(this.id).point(this.point).pointType(this.pointType.name())
-                .pointEventType(this.pointEventType.name()).description(this.description)
+                .pointEventType(this.pointEventType.name()).description(this.description).regDate(this.getRegDate())
                 .build();
     }
 }

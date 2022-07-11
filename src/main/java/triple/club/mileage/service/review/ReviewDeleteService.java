@@ -35,7 +35,7 @@ public class ReviewDeleteService implements ReviewService {
         String userId = eventRequestDTO.getUserId();
 
         // fetch join을 통해 리뷰와 장소, 유저를 한번에 조회
-        Review review = reviewRepository.findByIdWithFetch(reviewId).orElseThrow(() -> new IllegalStateException("해당 reviewId로 등록된 리뷰가 없습니다."));
+        Review review = reviewRepository.findByIdWithFetch(reviewId).orElseThrow(() -> new RestApiException(UserErrorCode.NONEXIST_REVIEW));
         Place place = review.getPlace();
         User user = review.getUser();
 
