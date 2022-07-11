@@ -1,11 +1,9 @@
 package triple.club.mileage.domain;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import triple.club.mileage.domain.enums.PointEventType;
 import triple.club.mileage.domain.enums.PointType;
+import triple.club.mileage.dto.PointHistoryDTO;
 
 import javax.persistence.*;
 
@@ -14,6 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Getter
 public class PointHistory extends BaseEntity {
 
     @Id
@@ -34,4 +33,10 @@ public class PointHistory extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public PointHistoryDTO convertToPointHistoryDTO() {
+        return PointHistoryDTO.builder().pointHistoryId(this.id).point(this.point).pointType(this.pointType.name())
+                .pointEventType(this.pointEventType.name()).description(this.description)
+                .build();
+    }
 }

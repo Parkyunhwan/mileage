@@ -7,7 +7,15 @@ import triple.club.mileage.domain.PointHistory;
 import triple.club.mileage.domain.Review;
 import triple.club.mileage.domain.User;
 import triple.club.mileage.domain.enums.PointEventType;
+import triple.club.mileage.dto.EventResponseDTO;
+import triple.club.mileage.dto.PointHistoryDTO;
+import triple.club.mileage.exception.RestApiException;
+import triple.club.mileage.exception.errorcode.CommonErrorCode;
+import triple.club.mileage.exception.errorcode.UserErrorCode;
 import triple.club.mileage.repository.PointHistoryRepository;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -74,5 +82,15 @@ public class PointHistoryService {
                 .build();
         pointHistoryRepository.save(pointHistory);
         return pointEventType.getPoint();
+    }
+
+    public List<PointHistoryDTO> retrieveAllUserHistory(String userId) {
+        List<PointHistory> pointHistories = pointHistoryRepository.findByUser(User.builder().id(userId).build())
+                .orElseThrow(() -> new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR));
+        List<PointHistoryDTO> pointHistoryDTOS = new ArrayList<>();
+        for (PointHistory pointHistory : pointHistories) {
+            pointHistoryDTOS.add(pointHistory.convertToPointHistoryDTO());
+        }
+        return pointHistoryDTOS;
     }
 }
