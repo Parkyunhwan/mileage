@@ -16,9 +16,6 @@ public class ReviewAction implements EventAction {
 
     @Override
     public String action(EventRequestDTO eventRequestDTO){
-        // 리뷰 저장
-        // 리뷰 삭제
-        // 리뷰 수정
         ActionType actionType = ActionType.valueOf(eventRequestDTO.getAction());
         ReviewService service = reviewServiceFactory.getService(actionType);
         service.doService(eventRequestDTO);

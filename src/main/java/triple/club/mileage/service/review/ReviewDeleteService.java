@@ -10,12 +10,8 @@ import triple.club.mileage.domain.User;
 import triple.club.mileage.domain.enums.ActionType;
 import triple.club.mileage.domain.enums.PointEventType;
 import triple.club.mileage.dto.EventRequestDTO;
-import triple.club.mileage.repository.PlaceRepository;
 import triple.club.mileage.repository.ReviewRepository;
-import triple.club.mileage.repository.UserRepository;
 import triple.club.mileage.service.point.PointHistoryService;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -23,9 +19,7 @@ import java.util.List;
 @Slf4j
 public class ReviewDeleteService implements ReviewService {
     private final ReviewRepository reviewRepository;
-    private final PlaceRepository placeRepository;
     private final PointHistoryService pointHistoryService;
-    private final UserRepository userRepository;
 
     /**
      * ActionType : DELETE, EventType : Event
@@ -38,35 +32,25 @@ public class ReviewDeleteService implements ReviewService {
         String placeId = eventRequestDTO.getPlaceId();
         String userId = eventRequestDTO.getUserId();
 
+        // fetch join을 통해 리뷰와 장소, 유저를 한번에 조회
         Review review = reviewRepository.findByIdWithFetch(reviewId).orElseThrow(() -> new IllegalStateException("해당 reviewId로 등록된 리뷰가 없습니다."));
         Place place = review.getPlace();
         User user = review.getUser();
 
+        checkReview(placeId, userId, place, user);
+
+        // 포인트이력추가->리뷰삭제->유저포인트변경
+        long pointScore = pointHistoryService.reviewDelete(review, place, user);
+        reviewRepository.deleteById(reviewId);
+        user.addPointScore(pointScore); // 변경감지로 업데이트
+    }
+
+    private void checkReview(String placeId, String userId, Place place, User user) {
         if (place == null || !place.getId().equals(placeId))
             throw new IllegalStateException("해당 장소의 리뷰가 아닙니다.");
 
         if (user == null || !user.getId().equals(userId))
             throw new IllegalStateException("해당 user의 리뷰가 아닙니다.");
-
-        log.info("포인트 차감");
-        Long pointScore = 0L;
-        if (review.checkContent()) {
-            pointHistoryService.savePointHistory(PointEventType.REVIEW_CONTENT_ZERO, user);
-            pointScore += PointEventType.REVIEW_CONTENT_ZERO.getPoint();
-        }
-        if (review.checkPhotos()) {
-            pointHistoryService.savePointHistory(PointEventType.REVIEW_PHOTO_ZERO, user);
-            pointScore += PointEventType.REVIEW_PHOTO_ZERO.getPoint();
-        }
-        if (!place.isZeroReview() && review.isFirstReview()) {
-            pointHistoryService.savePointHistory(PointEventType.PLACE_FIRST_REVIEW_DELETE, user);
-            pointScore += PointEventType.PLACE_FIRST_REVIEW_DELETE.getPoint();
-        }
-
-        if (place.getReviews().size() - 1 == 0)
-            place.changeReviewState(true);
-        reviewRepository.deleteById(reviewId);
-        user.addPointScore(pointScore); // 변경감지로 업데이트
     }
 
     @Override

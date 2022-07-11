@@ -40,40 +40,26 @@ public class ReviewModService implements ReviewService {
         String placeId = eventRequestDTO.getPlaceId();
         String userId = eventRequestDTO.getUserId();
 
-        Review currReview = reviewRepository.findByIdWithFetch(reviewId)
-                .orElseThrow(() -> new IllegalStateException("reviewId에 해당하는 review가 존재하지 않습니다."));
+        // fetch join을 통해 리뷰와 장소, 유저를 한번에 조회
+        Review currReview = reviewRepository.findByIdWithFetch(reviewId).orElseThrow(() -> new IllegalStateException("reviewId에 해당하는 review가 존재하지 않습니다."));
         Place place = currReview.getPlace();
         User user = currReview.getUser();
 
+        checkReview(placeId, userId, place, user);
+
+        // 변경리뷰생성->포인트이력추가->리뷰변경->유저포인트변경
+        Review modifyReview = Review.createReview(reviewId, content, attachedPhotoIds.size(), user, place);
+        long pointScore = pointHistoryService.reviewMod(currReview, modifyReview, place, user);
+        currReview.changeReview(content, attachedPhotoIds.size()); // 변경감지로 업데이트
+        user.addPointScore(pointScore);
+    }
+
+    private void checkReview(String placeId, String userId, Place place, User user) {
         if (place == null || !place.getId().equals(placeId))
             throw new IllegalStateException("해당 장소의 리뷰가 아닙니다.");
 
         if (user == null || !user.getId().equals(userId))
             throw new IllegalStateException("해당 user의 리뷰가 아닙니다.");
-
-        Review modifyReview = Review.createReview(reviewId, content, attachedPhotoIds.size(), user, place);
-
-        log.info("포인트 변경");
-        Long pointScore = 0L;
-        if (!modifyReview.checkContent() && currReview.checkContent()) {
-            pointHistoryService.savePointHistory(PointEventType.REVIEW_CONTENT_ZERO, user);
-            pointScore += PointEventType.REVIEW_CONTENT_ZERO.getPoint();
-        } else if (modifyReview.checkContent() && !currReview.checkContent()) {
-            pointHistoryService.savePointHistory(PointEventType.REVIEW_CONTENT, user);
-            pointScore += PointEventType.REVIEW_CONTENT.getPoint();
-        }
-
-        if (!modifyReview.checkPhotos() && currReview.checkPhotos()) {
-            pointHistoryService.savePointHistory(PointEventType.REVIEW_PHOTO_ZERO, user);
-            pointScore += PointEventType.REVIEW_PHOTO_ZERO.getPoint();
-        } else if (modifyReview.checkPhotos() && !currReview.checkPhotos()) {
-            pointHistoryService.savePointHistory(PointEventType.REVIEW_PHOTO, user);
-            pointScore += PointEventType.REVIEW_PHOTO_ZERO.getPoint();
-        }
-
-        // 변경감지로 업데이트
-        currReview.changeReview(content, attachedPhotoIds.size());
-        user.addPointScore(pointScore);
     }
 
     @Override

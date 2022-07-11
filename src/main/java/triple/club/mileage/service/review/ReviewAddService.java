@@ -45,41 +45,27 @@ public class ReviewAddService implements ReviewService {
         String placeId = eventRequestDTO.getPlaceId();
         String userId = eventRequestDTO.getUserId();
 
-        Place place = placeRepository.findById(placeId).orElseThrow(() -> new IllegalStateException("no exist"));
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalStateException("no exist"));
-
+        // 리뷰 저장 로직에 필요한 엔티티
+        Place place = placeRepository.findById(placeId).orElseThrow(() -> new IllegalStateException("등록되지 않은 장소입니다."));
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalStateException("등록되지 않은 유저입니다."));
         Optional<Review> optionalReview = reviewRepository.findById(reviewId);
-        if (optionalReview.isPresent())
+
+        checkReview(place, user, optionalReview);
+
+        // 리뷰생성->포인트이력추가->유저포인트변경->리뷰저장
+        Review newReview = Review.createReview(reviewId, content, attachedPhotoIds.size(), user, place);
+        long pointScore = pointHistoryService.reviewAdd(newReview, place, user);
+        user.addPointScore(pointScore); // 변경감지로 업데이트
+        reviewRepository.save(newReview);
+    }
+
+    private void checkReview(Place place, User user, Optional<Review> optionalReview) {
+        if (optionalReview.isPresent()) {
             throw new IllegalStateException("이미 등록된 reviewId 입니다.");
-        if (reviewRepository.findByPlaceAndUser(place, user).isEmpty())
-            log.info("장소에 등록된 리뷰가 없습니다.");
-        else {
-            log.info("하나의 유저가 한 장소에 2개이상의 리뷰를 작성할 수 없습니다.");
+        }
+        if (reviewRepository.findByPlaceAndUser(place, user).isPresent()) {
             throw new IllegalStateException("하나의 유저가 한 장소에 2개이상의 리뷰를 작성할 수 없습니다.");
         }
-
-        Review review = Review.createReview(reviewId, content, attachedPhotoIds.size()
-                , user, place);
-
-
-        log.info("포인트 적립");
-        Long pointScore = 0L;
-        if (review.checkContent()) {
-            pointHistoryService.savePointHistory(PointEventType.REVIEW_CONTENT, user);
-            pointScore += PointEventType.REVIEW_CONTENT.getPoint();
-        }
-        if (review.checkPhotos()) {
-            pointHistoryService.savePointHistory(PointEventType.REVIEW_PHOTO, user);
-            pointScore += PointEventType.REVIEW_PHOTO.getPoint();
-        }
-        if (place.isZeroReview()) {
-            pointHistoryService.savePointHistory(PointEventType.PLACE_FIRST_REVIEW, user);
-            pointScore += PointEventType.PLACE_FIRST_REVIEW.getPoint();
-            review.changeFirstReviewStatus(true);
-            place.changeReviewState(false);
-        }
-        user.addPointScore(pointScore); // 변경감지로 업데이트
-        reviewRepository.save(review);
     }
 
     @Override
