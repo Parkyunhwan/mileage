@@ -7,6 +7,7 @@ import triple.club.mileage.domain.enums.EventType;
 import triple.club.mileage.validation.EnumValidator;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Getter
@@ -18,12 +19,15 @@ public class EventRequestDTO {
     @EnumValidator(enumType = ActionType.class, message = "유효하지 않은 Action 타입입니다.")
     private String action;
 
+    @NotBlank(message = "reviewId는 필수값입니다.")
     private String reviewId;
+    @NotNull
     private String content;
+
     private List<String> attachedPhotoIds;
 
-    @NotBlank(message = "비워둘 수 없습니다.")
+    @NotBlank(message = "userId는 필수값입니다.")
     private String userId;
-
+    @NotBlank(message = "placeId는 필수값입니다.")
     private String placeId;
 }

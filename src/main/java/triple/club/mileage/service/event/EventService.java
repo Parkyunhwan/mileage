@@ -6,6 +6,7 @@ import triple.club.mileage.domain.Event;
 import triple.club.mileage.domain.enums.ActionType;
 import triple.club.mileage.domain.enums.EventType;
 import triple.club.mileage.dto.EventRequestDTO;
+import triple.club.mileage.dto.EventResponseDTO;
 import triple.club.mileage.factory.EventActionFactory;
 import triple.club.mileage.repository.EventRepository;
 
@@ -18,7 +19,7 @@ public class EventService {
 
 
 
-    public Long actionEvent(EventRequestDTO eventRequestDTO) {
+    public EventResponseDTO actionEvent(EventRequestDTO eventRequestDTO) {
 
         // 이벤트와 관련된 로직 시작
         EventAction eventAction = eventActionFactory.getEventAction(EventType.valueOf(eventRequestDTO.getType()));
@@ -30,6 +31,6 @@ public class EventService {
                 .build();
 
         Event savedEvent = eventRepository.save(event);
-        return savedEvent.getId();
+        return EventResponseDTO.builder().eventId(savedEvent.getId()).build();
     }
 }
