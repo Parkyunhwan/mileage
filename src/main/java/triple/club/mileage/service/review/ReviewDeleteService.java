@@ -10,6 +10,8 @@ import triple.club.mileage.domain.User;
 import triple.club.mileage.domain.enums.ActionType;
 import triple.club.mileage.domain.enums.PointEventType;
 import triple.club.mileage.dto.EventRequestDTO;
+import triple.club.mileage.exception.RestApiException;
+import triple.club.mileage.exception.errorcode.UserErrorCode;
 import triple.club.mileage.repository.ReviewRepository;
 import triple.club.mileage.service.point.PointHistoryService;
 
@@ -47,10 +49,10 @@ public class ReviewDeleteService implements ReviewService {
 
     private void checkReview(String placeId, String userId, Place place, User user) {
         if (place == null || !place.getId().equals(placeId))
-            throw new IllegalStateException("해당 장소의 리뷰가 아닙니다.");
+            throw new RestApiException(UserErrorCode.NOT_PLACE_REVIEW);
 
         if (user == null || !user.getId().equals(userId))
-            throw new IllegalStateException("해당 user의 리뷰가 아닙니다.");
+            throw new RestApiException(UserErrorCode.NOT_USER_REVIEW);
     }
 
     @Override

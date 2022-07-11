@@ -10,6 +10,8 @@ import triple.club.mileage.domain.User;
 import triple.club.mileage.domain.enums.ActionType;
 import triple.club.mileage.domain.enums.PointEventType;
 import triple.club.mileage.dto.EventRequestDTO;
+import triple.club.mileage.exception.RestApiException;
+import triple.club.mileage.exception.errorcode.UserErrorCode;
 import triple.club.mileage.repository.PlaceRepository;
 import triple.club.mileage.repository.ReviewRepository;
 import triple.club.mileage.repository.UserRepository;
@@ -41,7 +43,8 @@ public class ReviewModService implements ReviewService {
         String userId = eventRequestDTO.getUserId();
 
         // fetch join을 통해 리뷰와 장소, 유저를 한번에 조회
-        Review currReview = reviewRepository.findByIdWithFetch(reviewId).orElseThrow(() -> new IllegalStateException("reviewId에 해당하는 review가 존재하지 않습니다."));
+        Review currReview = reviewRepository.findByIdWithFetch(reviewId).orElseThrow(() -> new RestApiException(UserErrorCode.NONEXIST_REVIEW));
+
         Place place = currReview.getPlace();
         User user = currReview.getUser();
 
@@ -56,10 +59,10 @@ public class ReviewModService implements ReviewService {
 
     private void checkReview(String placeId, String userId, Place place, User user) {
         if (place == null || !place.getId().equals(placeId))
-            throw new IllegalStateException("해당 장소의 리뷰가 아닙니다.");
+            throw new RestApiException(UserErrorCode.NOT_PLACE_REVIEW);
 
         if (user == null || !user.getId().equals(userId))
-            throw new IllegalStateException("해당 user의 리뷰가 아닙니다.");
+            throw new RestApiException(UserErrorCode.NOT_USER_REVIEW);
     }
 
     @Override
