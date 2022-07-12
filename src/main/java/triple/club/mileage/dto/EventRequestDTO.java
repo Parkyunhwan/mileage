@@ -1,5 +1,7 @@
 package triple.club.mileage.dto;
 
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import triple.club.mileage.domain.enums.ActionType;
@@ -10,8 +12,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
+@Builder
 public class EventRequestDTO {
     @EnumValidator(enumType = EventType.class, message = "유효하지 않은 이벤트 타입입니다.")
     private String type;
