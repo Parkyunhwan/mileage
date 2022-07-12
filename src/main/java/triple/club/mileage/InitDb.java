@@ -1,7 +1,6 @@
 package triple.club.mileage;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.jni.Address;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import triple.club.mileage.domain.Place;
@@ -9,7 +8,6 @@ import triple.club.mileage.domain.User;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
-import java.awt.print.Book;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +18,7 @@ public class InitDb {
     @PostConstruct
     public void init() {
         initService.dbInit1();
+        initService.dbInit2();
     }
 
     @Component
@@ -49,5 +48,15 @@ public class InitDb {
         private User createUser(String userId, String name) {
             return User.builder().id(userId).name(name).pointScore(0L).build();
         }
+
+
+        public void dbInit2() {
+            for (int i = 3; i < 11; i++) {
+                String stri = String.valueOf(i);
+                User user = createUser(stri, "name_" + stri);
+                em.persist(user);
+            }
+        }
+
     }
 }

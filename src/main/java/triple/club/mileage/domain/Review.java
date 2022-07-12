@@ -1,11 +1,8 @@
 package triple.club.mileage.domain;
 
 import lombok.*;
-import triple.club.mileage.domain.enums.ActionType;
-import triple.club.mileage.domain.enums.EventType;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "review_tb")

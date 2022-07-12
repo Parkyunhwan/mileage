@@ -1,8 +1,6 @@
 package triple.club.mileage.domain;
 
 import lombok.*;
-import triple.club.mileage.domain.enums.ActionType;
-import triple.club.mileage.domain.enums.EventType;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -22,6 +20,9 @@ public class Place extends BaseEntity {
     private String name;
 
     private String firstReviewId;
+
+    @Version
+    Long version;
 
     @OneToMany(mappedBy = "place")
     @Builder.Default

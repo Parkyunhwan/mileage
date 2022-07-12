@@ -3,6 +3,7 @@ package triple.club.mileage.service.review;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import triple.club.mileage.domain.Place;
 import triple.club.mileage.domain.Review;
@@ -36,6 +37,7 @@ public class ReviewAddService implements ReviewService {
      * @param eventRequestDTO
      */
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void doService(EventRequestDTO eventRequestDTO) {
         log.info("리뷰 저장");
         String reviewId = eventRequestDTO.getReviewId();
