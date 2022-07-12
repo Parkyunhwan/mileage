@@ -7,11 +7,9 @@ import triple.club.mileage.domain.PointHistory;
 import triple.club.mileage.domain.Review;
 import triple.club.mileage.domain.User;
 import triple.club.mileage.domain.enums.PointEventType;
-import triple.club.mileage.dto.EventResponseDTO;
 import triple.club.mileage.dto.PointHistoryDTO;
 import triple.club.mileage.exception.RestApiException;
 import triple.club.mileage.exception.errorcode.CommonErrorCode;
-import triple.club.mileage.exception.errorcode.UserErrorCode;
 import triple.club.mileage.repository.PointHistoryRepository;
 
 import java.util.ArrayList;
