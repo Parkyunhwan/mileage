@@ -37,7 +37,7 @@ public class InitDb {
             User user = createUser(USER_ID1, "USER1");
             em.persist(user);
 
-            User user2 = createUser(USER_ID2, "USER1");
+            User user2 = createUser(USER_ID2, "USER2");
             em.persist(user2);
         }
 
@@ -53,7 +53,7 @@ public class InitDb {
         public void dbInit2() {
             for (int i = 3; i < 11; i++) {
                 String stri = String.valueOf(i);
-                User user = createUser(stri, "name_" + stri);
+                User user = createUser(stri, "USER" + stri);
                 em.persist(user);
             }
         }

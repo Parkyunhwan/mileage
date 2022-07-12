@@ -5,7 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "review_tb")
+@Table(name = "review_tb", indexes = @Index(name = "REVIEW_PLACE_ID_IDX", columnList = "place_id"))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
