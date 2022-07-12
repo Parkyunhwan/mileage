@@ -1,6 +1,6 @@
 # 🏟 Club Mileage 🪂
 ### 기술 스택
-* Java11
+* Java 11
 * Spring Boot
 * JPA 
 
